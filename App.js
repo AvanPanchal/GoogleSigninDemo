@@ -7,12 +7,14 @@ import {
   Text,
   StatusBar,
 } from 'react-native';
-import DemoLayoutScreen from './src/screens/DemoLayoutScreen';
+// import DemoLayoutScreen from './src/screens/DemoLayoutScreen';
+import AppNavigator from './routes/AppNavigator';
 
 export default class App extends Component {
   render() {
     return (
-      <DemoLayoutScreen></DemoLayoutScreen>
+      // <DemoLayoutScreen></DemoLayoutScreen>
+      <AppNavigator></AppNavigator>
     );
   }
 
