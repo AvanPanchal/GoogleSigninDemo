@@ -67,7 +67,7 @@ class googlebutton extends Component {
         });
     }
     render() {
-        console.log("propsps", this.props)
+        // console.log("propsps", this.props)
         return (
             <TouchableOpacity onPress={() => this.signin()}
                 style={[styles.btnstyle, { flexDirection: 'row' }]}

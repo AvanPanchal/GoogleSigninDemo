@@ -1,14 +1,15 @@
 import { createAppContainer } from 'react-navigation';
-import { createStackNavigator } from 'react-navigation-stack';
+import { createStackNavigator, Header } from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
 import { createBottomTabNavigator, createMaterialTopTabNavigator } from 'react-navigation-tabs'
 import GoogleProfileData from '../src/screens/GoogleProfileData';
 import LoginData from '../src/screens/LoginData';
+import FacebookProfileData from '../src/screens/FacebookProfileData';
 // import Homescreen from '../src/screens/Homescreen';
 import Login from '../src/screens/Login';
 import Signup from '../src/screens/Signup';
 import CustomHeader from '../src/components/headerComponent';
-import ForgotPass from '../src/screens/ForgotPass';
+// import ForgotPass from '../src/screens/ForgotPass';
 import React, { Component } from 'react';
 import AppImages from '../src/images/index';
 import { Dimensions, Image } from 'react-native';
@@ -21,7 +22,8 @@ const AutoStack = createStackNavigator({
     GoogleProfileData: { screen: GoogleProfileData },
     LoginData: { screen: LoginData },
     Login: { screen: Login },
-    ForgotPass: { screen: ForgotPass }
+    // ForgotPass: { screen: ForgotPass },
+    FacebookProfileData: { screen: FacebookProfileData }
 }, {
     headerMode: 'none'
 })
@@ -57,26 +59,33 @@ const tabNavigation = createMaterialTopTabNavigator({
                 // <Image source={AppImages.google} style={{ height: 25, width: 25, marginTop: 5 }} />
                 <Adduser name='add-user' color='white' size={25}></Adduser>
             ,
-            //activeTintColor: 'yellow',
+            activeTintColor: 'yellow',
             labelStyle: {
                 fontSize: 20,
-                // textAlign: 'center',
+                textAlign: 'center',
             },
-            header: props => <CustomHeader {...props} />,
-            headerStyle: {
-                backgroundColor: "transparent"
-            },
-            headerTitleStyle: {
-                fontWeight: "bold",
-                color: "#fff",
-            },
-            headerTintColor: "#fff",
-            animationEnabled: true
 
         },
     },
 
 }, {
+    navigationOptions: {
+        header: props => <CustomHeader {...props} />,
+        title: "APPNAME",
+        headerStyle: {
+            backgroundColor: "transparent",
+        },
+        // headerTitleStyle: {
+        //     fontWeight: "bold",
+        //     color: "#bd5632",
+        //     textAlign: 'center',
+        //     alignItems: 'center',
+
+        // },
+        headerTintColor: "#fff",
+        animationEnabled: true
+
+    },
     tabBarOptions:
     {
         activeTintColor: '#fff',
@@ -107,10 +116,7 @@ const tabNavigation = createMaterialTopTabNavigator({
 const AuthStack = createStackNavigator({
     tabNavigation,
     AutoStack,
-}, {
-    headerMode: 'none'
 })
-// })
 
 const AppNavigator = createAppContainer(AuthStack);
 

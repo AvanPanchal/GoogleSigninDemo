@@ -41,6 +41,9 @@ target 'PraticalDemo' do
 
   pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
 
+
+  pod 'react-native-fbsdk', :path => '../node_modules/react-native-fbsdk'
+
   target 'PraticalDemoTests' do
     inherit! :search_paths
     # Pods for testing
