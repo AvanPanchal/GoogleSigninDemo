@@ -10,6 +10,7 @@ import {
     ActivityIndicator, KeyboardAvoidingView, ScrollView,
     Alert,
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { GoogleSignin, statusCodes } from 'react-native-google-signin';
 import firebaseConfig from '../assests/firebaseconfig';
 import auth, { firebase } from '@react-native-firebase/auth';
@@ -20,7 +21,7 @@ import Mailicon from 'react-native-vector-icons/MaterialIcons';
 import Lockicon from 'react-native-vector-icons/MaterialIcons';
 import User from 'react-native-vector-icons/Entypo';
 import { TextInput } from 'react-native-paper';
-
+import Closeicon from 'react-native-vector-icons/AntDesign';
 class Signup extends Component {
     constructor(props) {
         super(props);
@@ -31,9 +32,82 @@ class Signup extends Component {
             pass: '',
             name: '',
             loading: false,
+            emailvalidate: true,
+            passwordvalidate: true,
+            namevalidate: true
         };
     }
-    LoginBtn = async (email, pass) => {
+    renderClearButton() {
+
+        return (
+            (this.state.textInput1Status) ?
+                <View style={{ justifyContent: 'flex-end', }}>
+                    <TouchableOpacity onPress={() => this.clearText()}>
+                        <Closeicon name='close' size={25} color='black' ></Closeicon>
+                    </TouchableOpacity>
+                </View>
+                : null
+        )
+    }
+    clearText() {
+        this.setState({
+            textInput1Status: false,
+            email: '',
+            pass: '',
+        });
+    }
+    validatemail(email) {
+        this.setState({ textInput1Status: true })
+        alph = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)/
+        if (alph.test(email)) {
+            this.setState({
+                emailvalidate: true,
+                email: email
+            })
+        }
+        else {
+            this.setState({
+                emailvalidate: false,
+                email: email
+            })
+        }
+    }
+
+    validatpassword(pass) {
+        this.setState({ textInput1Status: true })
+        passregex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
+        if (passregex.test(pass)) {
+            this.setState({
+                passwordvalidate: true,
+                pass: pass
+            })
+        }
+        else {
+            this.setState({
+                passwordvalidate: false,
+                pass: pass
+            })
+        }
+    }
+
+    validatename(name) {
+        this.setState({ textInput1Status: true })
+        let nameregex = /^[a-zA-Z]+$/i
+        if (nameregex.test(name)) {
+            this.setState({
+                namevalidate: true,
+                name: name
+            })
+        }
+        else {
+            this.setState({
+                namevalidate: false,
+                name: name
+            })
+        }
+    }
+
+    registerbtn = async (email, pass, name) => {
         if (this.state.name === null || this.state.name === '') {
             Alert.alert('Please enter name')
         }
@@ -61,7 +135,10 @@ class Signup extends Component {
                         });
                         this.setState({
                             pass: ''
-                        })
+                        });
+                        this.setState({
+                            name: ''
+                        });
                         this.props.navigation.navigate('LoginData');
                     });
             } catch (error) {
@@ -101,100 +178,125 @@ class Signup extends Component {
     render() {
         const { userinfo } = this.state;
         return (
-            <KeyboardAvoidingView behavior='height'>
-                <ScrollView>
-                    <View style={styles.container}>
-                        <View style={styles.logincontainer}>
-                            <Text style={styles.logintextstyle}>Sign Up</Text>
-                        </View>
-                        <View style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 28 }}>
-                            <Text style={{ fontSize: 20 }}>Get a free account using social logins</Text>
-                        </View>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                marginHorizontal: 28,
-                                justifyContent: 'space-between',
-                            }}>
-                            <View>
-                                <Fbbutton {...this.props}></Fbbutton>
-                            </View>
-                            <View>
-                                <Googlebtn {...this.props}></Googlebtn>
-                            </View>
-                        </View>
+            <KeyboardAwareScrollView
+                style={{ backgroundColor: 'transparent' }}
+                resetScrollToCoords={{ x: 0, y: 0 }}
+                contentContainerStyle={styles.container}
+                scrollEnabled={true}
+            >
 
-                        <View style={styles.orviewstyle}>
-                            <Text style={styles.ortextstyle}>OR</Text>
+                <View style={styles.container}>
+                    <View style={styles.logincontainer}>
+                        <Text style={styles.logintextstyle}>Sign Up</Text>
+                    </View>
+                    <View style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 28 }}>
+                        <Text style={{ fontSize: 20 }}>Get a free account using social logins</Text>
+                    </View>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            marginHorizontal: 28,
+                            justifyContent: 'space-between',
+                        }}>
+                        <View>
+                            <Fbbutton {...this.props}></Fbbutton>
                         </View>
-
-                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={styles.ortextstyle}>Sign up using email</Text>
-                        </View>
-
-
-                        <View style={styles.maintextinput}>
-                            <View style={{ marginBottom: 0, flexDirection: 'row' }}>
-                                <User name='user' size={20} style={{ marginTop: 25 }}></User>
-                                <TextInput
-                                    label="Name"
-                                    secureTextEntry={true}
-                                    style={styles.emailtextinputstyle}
-                                    onChangeText={name => this.setState({ name })}></TextInput>
-                            </View>
-                            <View style={{ marginBottom: 0, flexDirection: 'row' }}>
-                                <Mailicon size={20} name='email' style={{ marginTop: 25 }}></Mailicon>
-                                <TextInput
-                                    label="Email"
-                                    style={styles.emailtextinputstyle}
-                                    value={this.state.email}
-                                    onChangeText={email => this.setState({ email })}></TextInput>
-                            </View>
-                            <View style={{ marginBottom: 25, flexDirection: 'row' }}>
-                                <Lockicon size={20} name='lock' style={{ marginTop: 25 }}></Lockicon>
-                                <TextInput
-                                    label="Password"
-                                    secureTextEntry={true}
-                                    style={styles.emailtextinputstyle}
-                                    onChangeText={pass => this.setState({ pass })}></TextInput>
-                            </View>
-                            <View>
-                                <TouchableOpacity
-                                    style={{
-                                        minWidth: 120,
-                                        height: 55,
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        backgroundColor: '#0288D1',
-                                        display: 'flex',
-                                        // marginBottom: 30,
-                                        borderRadius: 4
-                                    }}
-                                    onPress={() => this.LoginBtn(this.state.email, this.state.pass)}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}>
-                                        {/* <ActivityIndicator size='large' color='white'></ActivityIndicator> */}
-                                        <Loader loading={this.state.loading} />
-                                        <Text
-                                            style={{
-                                                color: 'white',
-                                                textAlign: 'center',
-                                                fontSize: 17,
-                                                // fontWeight: 'bold',
-                                            }}>
-                                            REGISTER
-                </Text>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
+                        <View>
+                            <Googlebtn {...this.props}></Googlebtn>
                         </View>
                     </View>
-                </ScrollView>
-            </KeyboardAvoidingView>
+
+                    <View style={styles.orviewstyle}>
+                        <Text style={styles.ortextstyle}>OR</Text>
+                    </View>
+
+                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                        <Text style={styles.ortextstyle}>Sign up using email</Text>
+                    </View>
+
+
+                    <View style={styles.maintextinput}>
+                        <View style={{ marginBottom: 0, flexDirection: 'row' }}>
+                            <User name='user' size={20} style={{ marginTop: 25 }}></User>
+                            <TextInput
+                                label="Name"
+                                underlineColorAndroid='transparent'
+                                style={[styles.emailtextinputstyle,
+                                !this.state.namevalidate ? styles.nameerror : null
+                                ]}
+                                // onChangeText={name => this.setState({ name })}
+                                onChangeText={name => this.validatename(name)}
+
+                            ></TextInput>
+                            {this.renderClearButton()}
+                        </View>
+                        <View style={{ marginBottom: 0, flexDirection: 'row' }}>
+                            <Mailicon size={20} name='email' style={{ marginTop: 25 }}></Mailicon>
+                            <TextInput
+                                underlineColorAndroid='transparent'
+                                label="Email"
+                                style={[styles.emailtextinputstyle,
+                                !this.state.emailvalidate ? styles.emailerror : null
+                                ]}
+                                value={this.state.email}
+                                //onChangeText={email => this.setState({ email })}
+                                onChangeText={email => this.validatemail(email)}
+
+                            ></TextInput>
+                            {this.renderClearButton()}
+                        </View>
+                        <View style={{ marginBottom: 25, flexDirection: 'row' }}>
+                            <Lockicon size={20} name='lock' style={{ marginTop: 25 }}></Lockicon>
+                            <TextInput
+                                underlineColorAndroid='transparent'
+                                label="Password"
+                                secureTextEntry={true}
+                                style={[styles.emailtextinputstyle,
+                                !this.state.passwordvalidate ? styles.passerror : null
+                                ]}
+                                //onChangeText={pass => this.setState({ pass })}
+                                onChangeText={pass => this.validatpassword(pass)}
+
+                            ></TextInput>
+                            {this.renderClearButton()}
+                        </View>
+                        <View>
+                            <TouchableOpacity
+                                style={{
+                                    minWidth: 120,
+                                    height: 55,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: '#0288D1',
+                                    display: 'flex',
+                                    // marginBottom: 30,
+                                    borderRadius: 4
+                                }}
+                                onPress={() => this.registerbtn(this.state.email, this.state.pass
+                                    , this.state.name)}>
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}>
+                                    {/* <ActivityIndicator size='large' color='white'></ActivityIndicator> */}
+                                    <Loader loading={this.state.loading} />
+                                    <Text
+                                        style={{
+                                            color: 'white',
+                                            textAlign: 'center',
+                                            fontSize: 17,
+                                            // fontWeight: 'bold',
+                                        }}>
+                                        REGISTER
+                </Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </KeyboardAwareScrollView>
         );
     }
 }
@@ -202,7 +304,7 @@ export default Signup;
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 20,
+        marginTop: 15,
     },
     logincontainer: {
         alignItems: 'center',
@@ -216,13 +318,8 @@ const styles = StyleSheet.create({
         marginHorizontal: 30,
     },
     emailtextinputstyle: {
-        // height: 50,
-        // borderBottomWidth: 2,
-        // borderBottomColor: '#ccc',
-        // paddingBottom: 0,
         width: 302,
         backgroundColor: 'transparent',
-        // marginLeft: 5
     },
     imgstyle: {
         width: 50,
@@ -236,5 +333,17 @@ const styles = StyleSheet.create({
     },
     ortextstyle: {
         fontSize: 20
+    },
+    emailerror: {
+        borderWidth: 2,
+        borderColor: 'red'
+    },
+    passerror: {
+        borderWidth: 2,
+        borderColor: 'red'
+    },
+    nameerror: {
+        borderWidth: 2,
+        borderColor: 'red'
     }
 });

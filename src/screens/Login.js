@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Modal,
   // TextInput,
-  TouchableOpacity,
+  TouchableOpacity, AsyncStorage,
   Image, Button,
   ActivityIndicator, KeyboardAvoidingView, ScrollView,
   Alert,
@@ -17,11 +17,14 @@ import firebaseConfig from '../assests/firebaseconfig';
 import auth, { firebase } from '@react-native-firebase/auth';
 import Fbbutton from '../components/fbbutton';
 import Googlebtn from '../components/googlebutton';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Loader from '../components/loader';
 import Mailicon from 'react-native-vector-icons/MaterialIcons';
 import Lockicon from 'react-native-vector-icons/MaterialIcons';
 import Emailrecoveryicon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Keyicon from 'react-native-vector-icons/Ionicons';
+import Closeicon from 'react-native-vector-icons/AntDesign';
+
 class Login extends Component {
 
   constructor(props) {
@@ -32,9 +35,87 @@ class Login extends Component {
       email: '',
       pass: '',
       loading: false,
-      ModalVisibleStatus: false
+      ModalVisibleStatus: false,
+      emailvalidate: true,
+      modalemailvalidate: true,
+      passwordvalidate: true,
+
+      textInput1Status: false,
     };
   }
+
+  renderClearButton() {
+
+    return (
+      (this.state.textInput1Status) ?
+        <View style={{ justifyContent: 'flex-end', }}>
+          <TouchableOpacity onPress={() => this.clearText()}>
+            <Closeicon name='close' size={25} color='black' ></Closeicon>
+          </TouchableOpacity>
+        </View>
+        : null
+    )
+  }
+  clearText() {
+    this.setState({
+      textInput1Status: false,
+      email: '',
+      pass: '',
+    });
+  }
+  validatemail(email) {
+    this.setState({ textInput1Status: true })
+    let alph = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)/
+    if (alph.test(email)) {
+      this.setState({
+        emailvalidate: true,
+        email: email,
+      })
+    }
+    else {
+      this.setState({
+        emailvalidate: false,
+        email: email,
+      })
+    }
+  }
+
+  validatemodalemail(modalemail) {
+    this.setState({ textInput1Status: true })
+    let regalph = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)/
+    if (regalph.test(modalemail)) {
+      this.setState({
+        modalemailvalidate: true,
+        modalemail: modalemail,
+      })
+    }
+    else {
+      this.setState({
+        modalemailvalidate: false,
+        modalemail: email
+      })
+    }
+  }
+
+  validatpassword(pass) {
+    this.setState({ textInput1Status: true })
+    let passregex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
+    if (passregex.test(pass)) {
+      this.setState({
+        passwordvalidate: true,
+        pass: pass
+      })
+    }
+    else {
+      this.setState({
+        passwordvalidate: false,
+        pass: pass
+      })
+    }
+  }
+
+
+
   ShowModalFunction(visible) {
     this.setState({ ModalVisibleStatus: visible });
   }
@@ -63,7 +144,7 @@ class Login extends Component {
             });
             this.setState({
               pass: ''
-            })
+            });
             this.props.navigation.navigate('LoginData');
           });
       } catch (error) {
@@ -75,24 +156,6 @@ class Login extends Component {
     }
   };
 
-  // Logout = async () => {
-  //   try {
-  //     if ((await GoogleSignin.isSignedIn()).valueOf(true)) {
-  //       console.log(' ISsiginin ', GoogleSignin.isSignedIn);
-  //       await GoogleSignin.revokeAccess();
-  //       await GoogleSignin.signOut().then(res => {
-  //         console.log(res);
-  //         this.setState({ userinfo: {} });
-  //         this.setState({ isfirsttime: false });
-  //       });
-  //       alert('Log out');
-  //     } else {
-  //       alert('Please log in ');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error : ', error);
-  //   }
-  // };
 
   componentDidMount() {
     if (firebase.apps.length === 0) {
@@ -103,65 +166,131 @@ class Login extends Component {
   render() {
     const { userinfo } = this.state;
     return (
-      <KeyboardAvoidingView behavior='height'>
-        <ScrollView>
-          <View style={styles.container}>
-            <View style={styles.logincontainer}>
-              <Text style={styles.logintextstyle}>Login with</Text>
+      <KeyboardAwareScrollView
+        style={{ backgroundColor: 'transparent' }}
+        resetScrollToCoords={{ x: 0, y: 0 }}
+        contentContainerStyle={styles.container}
+        scrollEnabled={true}
+      >
+        <View style={styles.container}>
+          <View style={styles.logincontainer}>
+            <Text style={styles.logintextstyle}>Login with</Text>
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              marginHorizontal: 28,
+              justifyContent: 'space-between',
+            }}>
+            <View>
+              <Fbbutton {...this.props}></Fbbutton>
+            </View>
+            <View>
+              <Googlebtn {...this.props}></Googlebtn>
+            </View>
+          </View>
+
+          <View style={styles.orviewstyle}>
+            <Text style={styles.ortextstyle}>OR</Text>
+          </View>
+
+
+          <View style={styles.maintextinput}>
+            <View style={{ marginBottom: 10, flexDirection: 'row' }}>
+              <Mailicon size={20} name='email' style={{ marginTop: 24 }}></Mailicon>
+              <TextInput
+                underlineColorAndroid='transparent'
+                label='Email'
+                style={[styles.emailtextinputstyle,
+                !this.state.emailvalidate ? styles.emailerror : null]}
+                value={this.state.email}
+                //onChangeText={email => this.setState({ email })}
+                onChangeText={email => this.validatemail(email)}
+              ></TextInput>
+              {this.renderClearButton()}
+            </View>
+            <View style={{ marginBottom: 20, flexDirection: 'row' }}>
+              <Lockicon size={20} name='lock' style={{ marginTop: 24 }}></Lockicon>
+              <TextInput
+                underlineColorAndroid='transparent'
+                label="Password"
+                secureTextEntry={true}
+                style={[styles.emailtextinputstyle,
+                !this.state.passwordvalidate ? styles.passerror : null]}
+                value={this.state.pass}
+                //onChangeText={pass => this.setState({ pass })}
+                onChangeText={pass => this.validatpassword(pass)}
+              ></TextInput>
+              {this.renderClearButton()}
             </View>
             <View
               style={{
-                flexDirection: 'row',
-                marginHorizontal: 28,
-                justifyContent: 'space-between',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginBottom: 35,
+                flexDirection: 'row'
               }}>
-              <View>
-                <Fbbutton {...this.props}></Fbbutton>
-              </View>
-              <View>
-                <Googlebtn {...this.props}></Googlebtn>
-              </View>
+              <Keyicon name='md-key' color='#00BCD4' size={20}></Keyicon>
+              <Text style={{ color: '#00BCD4', fontSize: 18, marginLeft: 10 }}
+                onPress={() => this.ShowModalFunction(true)}>FORGOT PASSWORD?</Text>
             </View>
-
-            <View style={styles.orviewstyle}>
-              <Text style={styles.ortextstyle}>OR</Text>
-            </View>
-
-
-            <View style={styles.maintextinput}>
-              <View style={{ marginBottom: 25, flexDirection: 'row' }}>
-                <Mailicon size={20} name='email' style={{ marginTop: 24 }}></Mailicon>
-                <TextInput
-                  // placeholder="Email"
-                  label='Email'
-                  style={styles.emailtextinputstyle}
-                  value={this.state.email}
-                  onChangeText={email => this.setState({ email })}></TextInput>
-              </View>
-              <View style={{ marginBottom: 50, flexDirection: 'row' }}>
-                <Lockicon size={20} name='lock' style={{ marginTop: 24 }}></Lockicon>
-                <TextInput
-
-                  label="Password"
-                  secureTextEntry={true}
-                  style={styles.emailtextinputstyle}
-                  onChangeText={pass => this.setState({ pass })}></TextInput>
-              </View>
-              <View
+            <View>
+              <TouchableOpacity
                 style={{
-                  justifyContent: 'center',
+                  minWidth: 120,
+                  height: 55,
                   alignItems: 'center',
-                  marginBottom: 35,
-                  flexDirection: 'row'
-                }}>
-                <Keyicon name='md-key' color='#00BCD4' size={20}></Keyicon>
-                <Text style={{ color: '#00BCD4', fontSize: 18, marginLeft: 10 }}
-                  onPress={() => this.ShowModalFunction(true)}>FORGOT PASSWORD?</Text>
-              </View>
-              <View>
+                  justifyContent: 'center',
+                  backgroundColor: '#0288D1',
+                  display: 'flex',
+                  // marginBottom: 30,
+                  borderRadius: 4
+                }}
+                onPress={() => this.LoginBtn(this.state.email, this.state.pass)}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  {/* <ActivityIndicator size='large' color='white'></ActivityIndicator> */}
+                  <Loader loading={this.state.loading} />
+                  <Text
+                    style={{
+                      color: 'white',
+                      textAlign: 'center',
+                      fontSize: 17,
+                      // fontWeight: 'bold',
+                    }}>
+                    LOGIN
+                </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <Modal
+            transparent={false}
+            animationType={"slide"}
+            visible={this.state.ModalVisibleStatus}
+            onRequestClose={() => { this.ShowModalFunction(!this.state.ModalVisibleStatus) }} >
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <View style={styles.ModalInsideView}>
+                <View style={{ marginTop: 20 }}>
+                  <Text style={styles.TextStyle}>Recover Password</Text>
+                </View>
+                <View style={{ marginBottom: 25, marginTop: 30, flexDirection: 'row' }}>
+                  <Mailicon size={25} name='email' color='white' style={{ marginTop: 24 }}></Mailicon>
+                  <TextInput
+                    label="Email"
+                    onChangeText={(modalemail) => this.validatemodalemail(modalemail)}
+                    style={[styles.emailtextinputmodalstyle,
+                    !this.state.modalemailvalidate ? styles.emailerror : null
+                    ]}
+                  ></TextInput>
+                </View>
                 <TouchableOpacity
                   style={{
-                    minWidth: 120,
+                    minWidth: 250,
                     height: 55,
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -170,84 +299,33 @@ class Login extends Component {
                     // marginBottom: 30,
                     borderRadius: 4
                   }}
-                  onPress={() => this.LoginBtn(this.state.email, this.state.pass)}>
+                  onPress={() => { this.ShowModalFunction(!this.state.ModalVisibleStatus) }}>
                   <View
                     style={{
                       flexDirection: 'row',
                       justifyContent: 'center',
                       alignItems: 'center',
                     }}>
-                    {/* <ActivityIndicator size='large' color='white'></ActivityIndicator> */}
-                    <Loader loading={this.state.loading} />
+                    <Emailrecoveryicon
+                      size={20} color='white' name='email-open'
+                    ></Emailrecoveryicon>
                     <Text
                       style={{
                         color: 'white',
                         textAlign: 'center',
                         fontSize: 17,
+                        marginLeft: 6
                         // fontWeight: 'bold',
                       }}>
-                      LOGIN
+                      SEND RECOVERY EMAIL
                 </Text>
                   </View>
                 </TouchableOpacity>
               </View>
             </View>
-            <Modal
-              transparent={false}
-              animationType={"slide"}
-              visible={this.state.ModalVisibleStatus}
-              onRequestClose={() => { this.ShowModalFunction(!this.state.ModalVisibleStatus) }} >
-              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <View style={styles.ModalInsideView}>
-                  <View style={{ marginTop: 20 }}>
-                    <Text style={styles.TextStyle}>Recover Password</Text>
-                  </View>
-                  <View style={{ marginBottom: 25, marginTop: 30, flexDirection: 'row' }}>
-                    <Mailicon size={25} name='email' color='white' style={{ marginTop: 24 }}></Mailicon>
-                    <TextInput
-                      label="Email"
-                      style={styles.emailtextinputmodalstyle}
-                    ></TextInput>
-                  </View>
-                  <TouchableOpacity
-                    style={{
-                      minWidth: 250,
-                      height: 55,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      backgroundColor: '#0288D1',
-                      display: 'flex',
-                      // marginBottom: 30,
-                      borderRadius: 4
-                    }}
-                    onPress={() => { this.ShowModalFunction(!this.state.ModalVisibleStatus) }}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <Emailrecoveryicon
-                        size={20} color='white' name='email-open'
-                      ></Emailrecoveryicon>
-                      <Text
-                        style={{
-                          color: 'white',
-                          textAlign: 'center',
-                          fontSize: 17,
-                          marginLeft: 6
-                          // fontWeight: 'bold',
-                        }}>
-                        SEND RECOVERY EMAIL
-                </Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </Modal>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          </Modal>
+        </View>
+      </KeyboardAwareScrollView>
     );
   }
 }
@@ -255,7 +333,7 @@ export default Login;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 35,
+    marginTop: 15,
   },
   logincontainer: {
     alignItems: 'center',
@@ -278,9 +356,9 @@ const styles = StyleSheet.create({
     // marginLeft: 5
   },
   emailtextinputmodalstyle: {
-    width: 220,
     backgroundColor: 'transparent',
     // borderBottomWidth: 2,
+    width: 220,
     // borderBottomColor: '#ccc',
     // paddingBottom: 0,
     // marginLeft: 5
@@ -292,7 +370,7 @@ const styles = StyleSheet.create({
   orviewstyle: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 50
+    marginTop: 30
   },
   ortextstyle: {
     fontSize: 20
@@ -314,5 +392,13 @@ const styles = StyleSheet.create({
     // padding: 20,
     textAlign: 'center'
 
+  },
+  emailerror: {
+    borderWidth: 2,
+    borderColor: 'red'
+  },
+  passerror: {
+    borderWidth: 2,
+    borderColor: 'red'
   }
 });

@@ -1,15 +1,13 @@
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator, Header } from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
-import { createBottomTabNavigator, createMaterialTopTabNavigator } from 'react-navigation-tabs'
+import { createMaterialTopTabNavigator } from 'react-navigation-tabs'
 import GoogleProfileData from '../src/screens/GoogleProfileData';
 import LoginData from '../src/screens/LoginData';
 import FacebookProfileData from '../src/screens/FacebookProfileData';
-// import Homescreen from '../src/screens/Homescreen';
 import Login from '../src/screens/Login';
 import Signup from '../src/screens/Signup';
 import CustomHeader from '../src/components/headerComponent';
-// import ForgotPass from '../src/screens/ForgotPass';
 import React, { Component } from 'react';
 import AppImages from '../src/images/index';
 import { Dimensions, Image } from 'react-native';
@@ -17,15 +15,11 @@ import User from 'react-native-vector-icons/Entypo';
 import Adduser from 'react-native-vector-icons/Entypo';
 const SCREEN_WIDTH = Dimensions.get("screen").width;
 const AutoStack = createStackNavigator({
-    // Homescreen: { screen: Homescreen },
     Signup: { screen: Signup },
-    GoogleProfileData: { screen: GoogleProfileData },
     LoginData: { screen: LoginData },
     Login: { screen: Login },
-    // ForgotPass: { screen: ForgotPass },
-    FacebookProfileData: { screen: FacebookProfileData }
 }, {
-    headerMode: 'none'
+    headerMode: 'none',
 })
 
 
@@ -34,17 +28,11 @@ const tabNavigation = createMaterialTopTabNavigator({
         screen: Login,
         navigationOptions: {
             title: 'Login',
-            // activeTintColor: 'red',
-            // gesturesEnabled: true,
-            // swipeEnabled: true,
             tabBarIcon: () => (
-                //    <Image source={AppImages.facebook} style={{ height: 25, width: 25, marginTop: 5 }} />
                 <User name='user' color='white' size={25}></User>
             ),
             labelStyle: {
                 fontSize: 16,
-                // textAlign: 'center',
-                // width: 'auto',
             },
 
         },
@@ -56,7 +44,6 @@ const tabNavigation = createMaterialTopTabNavigator({
             // swipeEnabled: true,
             // gesturesEnabled: true,
             tabBarIcon: () =>
-                // <Image source={AppImages.google} style={{ height: 25, width: 25, marginTop: 5 }} />
                 <Adduser name='add-user' color='white' size={25}></Adduser>
             ,
             activeTintColor: 'yellow',
@@ -75,13 +62,6 @@ const tabNavigation = createMaterialTopTabNavigator({
         headerStyle: {
             backgroundColor: "transparent",
         },
-        // headerTitleStyle: {
-        //     fontWeight: "bold",
-        //     color: "#bd5632",
-        //     textAlign: 'center',
-        //     alignItems: 'center',
-
-        // },
         headerTintColor: "#fff",
         animationEnabled: true
 
@@ -108,14 +88,11 @@ const tabNavigation = createMaterialTopTabNavigator({
     },
 })
 
-
-
-
-
-
 const AuthStack = createStackNavigator({
     tabNavigation,
     AutoStack,
+    GoogleProfileData: { screen: GoogleProfileData },
+    FacebookProfileData: { screen: FacebookProfileData }
 })
 
 const AppNavigator = createAppContainer(AuthStack);
